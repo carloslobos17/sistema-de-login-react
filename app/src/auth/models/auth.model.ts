@@ -5,18 +5,18 @@ export interface Role {
     route: string
 }
 
-export interface UserResponse {
+export interface UserResponse{
     email: string
     id: number
     image: string
-    name: string
     lastName: string
+    name: string
     notification_token: string | null
     phone: string
     roles: Role[]
 }
 
-export interface AuthResponse {
+export interface AuthResponse{
     token: string
-    userResponse: UserResponse 
+    userResponse: UserResponse
 }
