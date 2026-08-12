@@ -1,6 +1,6 @@
-import { TextInput, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { TextInput, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from "react-native"
 import { Feather } from "@expo/vector-icons"
-import { useLogin } from "../src/viewmodels/use-login"
+import { useLogin } from "../src/auth/viewmodels/use-login"
 import { useRouter } from "expo-router"
 import React from "react"
 
@@ -8,9 +8,15 @@ export default function LoginScreen() {
     const router = useRouter()
 
     const {
+        email,
+        password,
+        setEmail,
+        setPassword,
+        isLoading,
+        errorMessage,
         isPasswordVisible,
-        togglePasswordVisivility
-
+        togglePasswordVisibility,
+        handleLogin
     } = useLogin()
     return (
         <KeyboardAvoidingView
@@ -33,6 +39,12 @@ export default function LoginScreen() {
                 </View>
                 {/* CARD */}
                 <View style={styles.card}>
+
+                    {errorMessage && (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{errorMessage}</Text>
+                        </View>
+                    )}
                     <Text style={styles.label}>Email Adress</Text>
                     <View style={styles.inputContainer}>
                         <Feather
@@ -41,6 +53,9 @@ export default function LoginScreen() {
                             color="#9CA3AF"
                         />
                         <TextInput style={styles.input}
+                            value={email}
+                            onChangeText={setEmail}
+                            autoCapitalize="none"
                             placeholder="name@gmail.com"
                             keyboardType="email-address"
                         />
@@ -53,11 +68,14 @@ export default function LoginScreen() {
                     </View>
                     <View style={styles.inputContainer}>
                         <TextInput style={styles.input}
+                            value={password}
+                            onChangeText={setPassword}
+                            autoCapitalize="none"
                             placeholder="****************"
                             secureTextEntry={isPasswordVisible ? true : false}
                         />
                         <TouchableOpacity
-                            onPress={togglePasswordVisivility}
+                            onPress={togglePasswordVisibility}
                         >
                             <Feather
                                 name={isPasswordVisible ? "eye-off" : "eye"}
@@ -66,14 +84,24 @@ export default function LoginScreen() {
                             />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.buttonLogin}>
-                        <Text style={styles.buttonLoginText}>Log in</Text>
-                    </TouchableOpacity>
+                    {isLoading ? (
+                        <ActivityIndicator
+                            size={"large"}
+                            color={"#006C47"}
+                        ></ActivityIndicator>
+                    ) : (
+                        <TouchableOpacity
+                            style={styles.buttonLogin}
+                            onPress={handleLogin}
+                        >
+                            <Text style={styles.buttonLoginText}>Log in</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
                 <View style={styles.signUpRow}>
                     <Text style={styles.signUpText}>Does not have an account? </Text>
-                    <TouchableOpacity 
-                        onPress={()=> router.push("/(public)/register")}
+                    <TouchableOpacity
+                        onPress={() => router.push("/(public)/register")}
                     >
                         <Text style={styles.signUpTextLink}>Sign up for free</Text>
                     </TouchableOpacity>
@@ -183,5 +211,19 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "bold",
         color: "#006C47"
+    },
+    errorContainer:{
+        borderWidth:1,
+        padding:12,
+        borderRadius:8,
+        marginBottom:20,
+        backgroundColor:"#FEF2F2",
+        borderColor:"#FCA5A5",
+    },
+    errorText:{
+        fontSize:15,
+        textAlign:"center",
+        color:"#DC2626",
+        fontWeight:500
     }
 })

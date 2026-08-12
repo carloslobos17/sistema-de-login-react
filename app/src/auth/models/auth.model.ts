@@ -11,7 +11,7 @@ export interface UserResponse{
     image: string
     lastName: string
     name: string
-    notification_token: string | null
+    notification_token:string | null
     phone: string
     roles: Role[]
 }
