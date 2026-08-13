@@ -14,7 +14,7 @@ export function useLogin() {
     }
 
     const handleLogin = async () => {
-        if (!email || password){
+        if (!email || !password){
             setErrorMessage("Please, complete all fields")
             return
         }
