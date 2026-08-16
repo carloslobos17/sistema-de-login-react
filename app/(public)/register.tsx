@@ -1,11 +1,29 @@
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Text, View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity } from "react-native"
+import { Text, View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, ActivityIndicatorBase } from "react-native"
+import { useRegister } from "../src/auth/viewmodels/use-register";
 
 
 export default function RegisterScreen() {
     const router = useRouter();
+    const {
+        fullName,
+        lastName,
+        phone,
+        email,
+        password,
+        confirmPassword,
+        handleRegister,
+        setfullName,
+        setLastName,
+        setPhone,
+        setEmail,
+        setPassword,
+        setConfirmPassword,
+        errorMessage,
+        isLoading
+    } = useRegister()
     return (
         <KeyboardAvoidingView
             style={styles.container}
@@ -27,6 +45,36 @@ export default function RegisterScreen() {
                         <TextInput
                             style={{ flex: 1, height: "100%", marginLeft: 8 }}
                             placeholder="Madeline"
+                            value={fullName}
+                            onChangeText={setfullName}
+                        />
+                    </View>
+                    <Text style={styles.label}>Last name</Text>
+                    <View style={styles.inputContainer}>
+                        <Feather
+                            name="user"
+                            size={20}
+                            color="#9CA3AF"
+                        />
+                        <TextInput
+                            style={{ flex: 1, height: "100%", marginLeft: 8 }}
+                            placeholder="Henriquez"
+                            value={lastName}
+                            onChangeText={setLastName}
+                        />
+                    </View>
+                    <Text style={styles.label}>Phone</Text>
+                    <View style={styles.inputContainer}>
+                        <Feather
+                            name="phone"
+                            size={20}
+                            color="#9CA3AF"
+                        />
+                        <TextInput
+                            style={{ flex: 1, height: "100%", marginLeft: 8 }}
+                            placeholder="1234-5678"
+                            value={phone}
+                            onChangeText={setPhone}
                         />
                     </View>
                     <Text style={styles.label}>Email Adress</Text>
@@ -39,6 +87,8 @@ export default function RegisterScreen() {
                         <TextInput
                             style={{ flex: 1, height: "100%", marginLeft: 8 }}
                             placeholder="name@mail.com"
+                            value={email}
+                            onChangeText={setEmail}
                             keyboardType="email-address"
                         />
                     </View>
@@ -52,6 +102,8 @@ export default function RegisterScreen() {
                         <TextInput
                             style={{ flex: 1, height: "100%", marginLeft: 8 }}
                             placeholder="*****************"
+                            value={password}
+                            onChangeText={setPassword}
                             secureTextEntry={true}
                         />
                     </View>
@@ -59,23 +111,30 @@ export default function RegisterScreen() {
                     <View style={styles.inputContainer}>
                         <Feather
                             name="user"
-                            size={20} 
+                            size={20}
                             color="#9CA3AF"
                         />
                         <TextInput
                             style={{ flex: 1, height: "100%", marginLeft: 8 }}
                             placeholder="*****************"
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
                             secureTextEntry={true}
                         />
                     </View>
-                    <TouchableOpacity style={styles.buttonRegister}>
-                        <Text style={styles.buttonRegisterText}>Register</Text>
-                    </TouchableOpacity>
+                    {isLoading ? (<ActivityIndicator size="large" color="#006C47" />
+                    ) : (
+                        <TouchableOpacity style={styles.buttonRegister} onPress={handleRegister}>
+                            <Text style={styles.buttonRegisterText}>Register</Text>
+                        </TouchableOpacity>
+                    )
+                    }
+
                 </View>
                 <View style={styles.signRow}>
                     <Text style={styles.signInText}>Already have an account?</Text>
                     <TouchableOpacity
-                    onPress={()=>{router.push("/(public)")}}
+                        onPress={() => { router.push("/(public)") }}
                     >
                         <Text style={styles.signInLink}>Log in here</Text>
                     </TouchableOpacity>
@@ -131,29 +190,29 @@ const styles = StyleSheet.create({
         height: 50,
         marginBottom: 15
     },
-        buttonRegister: {
+    buttonRegister: {
         backgroundColor: "#006C47",
         justifyContent: "center",
         alignItems: "center",
         height: 50,
         borderRadius: 8
     },
-    buttonRegisterText:{
-        color:"#fff",
-        fontSize:16
+    buttonRegisterText: {
+        color: "#fff",
+        fontSize: 16
     },
-    signRow:{
-        flexDirection:"row",
-        justifyContent:"center",
-        marginTop:20
+    signRow: {
+        flexDirection: "row",
+        justifyContent: "center",
+        marginTop: 20
     },
-    signInText:{
-        fontSize:14,
-        color:"#6B7280"
+    signInText: {
+        fontSize: 14,
+        color: "#6B7280"
     },
-    signInLink:{
-        fontSize:14,
-        color:"#006C47",
-        fontWeight:"bold"
+    signInLink: {
+        fontSize: 14,
+        color: "#006C47",
+        fontWeight: "bold"
     }
 })
