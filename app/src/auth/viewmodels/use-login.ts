@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { AuthService } from "../services/auth.service";
+import { useRouter } from "expo-router";
 
 export function useLogin() {
+    const router = useRouter()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [isLoading, setIsLoading] = useState(false)
@@ -24,6 +26,7 @@ export function useLogin() {
         try{
             const data = await AuthService.login(email, password)
             console.log("TOKEN", data.token)
+            router.replace("/(protected)/dashboard")
         }catch(error:any){
             setErrorMessage(error.message)
         }finally{
