@@ -3,8 +3,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Drawer } from "expo-router/drawer"
 import { Image, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useDrawer } from "../src/admin/viewmodels/use-drawer";
+import { Feather } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 export default function ProtectedLayout() {
+    const router = useRouter()
     const { profile, navigationOptions } = useDrawer()
 
     return (
@@ -20,7 +23,7 @@ export default function ProtectedLayout() {
                     return (
                         <View style={styles.drawerContainer}>
                             <View style={styles.header}>
-                                <View style={styles.headerInfoUser}>
+                                <View style={styles.infoUser}>
                                     <Image
                                         style={styles.avatar}
                                         source={{ uri: profile.avatarUrl }}
@@ -33,19 +36,30 @@ export default function ProtectedLayout() {
                                 <View style={styles.versionTag}>
                                     <Text>{profile.version}</Text>
                                 </View>
-                                <View>
-                                    {navigationOptions.map((option) => {
-                                        const isSelected = activeRouteName === option.name
-                                        return (
-                                            <TouchableOpacity
-                                                key={option.name}
-                                            >
-                                                <Text>{option.label}</Text>
-                                            </TouchableOpacity>
-                                        )
-                                    })}
-                                </View>
                             </View>
+                            <View style={styles.menuList}>
+                                {navigationOptions.map((option) => {
+                                    const isSelected = activeRouteName === option.name
+                                    return (
+                                        <TouchableOpacity
+                                            style={[styles.menuItemList, isSelected && styles.menuItemSelected]}
+                                            key={option.name}
+                                        >
+                                            <Feather
+                                                style={styles.menuIcon}
+                                                name={option.icon as any}
+                                                size={20}
+                                                color={isSelected ? "#fff" : "#374151"}
+                                            />
+                                            <Text style={[styles.menuText, isSelected && styles.menuTextSelected]}>{option.label}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                })}
+                            </View>
+                            <TouchableOpacity style={styles.logoutButton}>
+                                <Feather name="log-out" size={20} color="#EF4444" style={styles.menuIcon} />
+                                <Text style={styles.logoutText}>Log out</Text>
+                            </TouchableOpacity>
                         </View>
                     )
                 }}
@@ -62,10 +76,10 @@ const styles = StyleSheet.create({
     header: {
         padding: 24,
         borderBottomWidth: 1,
-        borderBottomColor: "#E5E7E8",
+        borderBottomColor: "#E5E7EB",
         alignItems: "flex-start"
     },
-    headerInfoUser: {
+    infoUser: {
         flexDirection: "row"
     },
     avatar: {
@@ -94,5 +108,45 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
         marginTop: 8,
         borderRadius: 12
+    },
+    menuList: {
+        flex: 1,
+        paddingTop: 16,
+        paddingHorizontal: 12
+    },
+    menuItemList: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        borderRadius: 24,
+        marginVertical: 4
+    },
+    menuItemSelected: {
+        backgroundColor: "#00B074"
+    },
+    menuIcon: {
+        marginRight: 15
+    },
+    menuText: {
+        fontSize: 15,
+        fontWeight: "bold",
+        color: "#374151"
+    },
+    menuTextSelected: {
+        color: "#fff"
+    },
+    logoutButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 24,
+        borderTopWidth: 1,
+        borderTopColor: "#E5E7EB",
+        marginBottom: 15
+    },
+    logoutText: {
+        fontSize: 15,
+        fontWeight: "bold",
+        color: "#EF4444"
     }
 })
