@@ -3,12 +3,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Drawer } from "expo-router/drawer"
 import { Image, StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { useDrawer } from "../src/admin/viewmodels/use-drawer";
-import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons"
+import { useAuth } from "../src/context/AuthContext";
 
 export default function ProtectedLayout() {
-    const router = useRouter()
     const { profile, navigationOptions } = useDrawer()
+    const { clearSession } = useAuth()
 
     return (
         <GestureHandlerRootView>
@@ -56,7 +56,13 @@ export default function ProtectedLayout() {
                                     )
                                 })}
                             </View>
-                            <TouchableOpacity style={styles.logoutButton}>
+                            <TouchableOpacity 
+                            style={styles.logoutButton}
+                            onPress={async()=>{
+                                await clearSession()
+                            }}
+                            >
+                                
                                 <Feather name="log-out" size={20} color="#EF4444" style={styles.menuIcon} />
                                 <Text style={styles.logoutText}>Log out</Text>
                             </TouchableOpacity>
