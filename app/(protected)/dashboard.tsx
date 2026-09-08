@@ -158,10 +158,24 @@ export default function DashboardScreen() {
                                 source={{ uri: item.image }}
                                 style={styles.productImage}
                             />
+                            {item.isNew && (
+                                <View style={styles.newBadge}>
+                                    <Text style={styles.newBadgeText}>NEW</Text>
+                                </View>
+                            )}
                         </View>
                         <View style={styles.productoInfo}>
-                    <Text style={styles.productTitle}>{item.title}</Text>
-                    <Text style={styles.productDescription}>{item.description}</Text>
+                            <Text style={styles.productTitle}>{item.title}</Text>
+                            <Text style={styles.productDescription}>{item.description}</Text>
+                            <View style={styles.priceRow}>
+                                <Text>${item.price.toFixed(2)}</Text>
+                                <TouchableOpacity style={styles.cardBtn}>
+                                    <Ionicons name="cart-outline"
+                                    size={16}
+                                    color={"#fff"}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 )}
@@ -271,24 +285,52 @@ const styles = StyleSheet.create({
         height: "100%",
         resizeMode: "cover"
     },
+    newBadge: {
+        position: "absolute",
+        top: 10,
+        left: 10,
+        backgroundColor: "#005C3A",
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6
+    },
+    newBadgeText: {
+        color: "#fff",
+        fontSize: 10,
+        fontWeight: "bold"
+    },
     imageWrapper: {
         height: 140,
         width: "100%",
         backgroundColor: "#F3F4F6",
         position: "relative"
     },
-    productoInfo:{
-        padding:12
+    productoInfo: {
+        padding: 12
     },
-    productTitle:{
-        fontSize:14,
-        fontWeight:"bold",
-        color:"#1F2937",
-        marginBottom:2
+    productTitle: {
+        fontSize: 14,
+        fontWeight: "bold",
+        color: "#1F2937",
+        marginBottom: 2
     },
-    productDescription:{
-        fontSize:11,
-        color:"#6B7280",
-        marginBottom:8
+    productDescription: {
+        fontSize: 11,
+        color: "#6B7280",
+        marginBottom: 8
+    },
+    priceRow:{
+        flexDirection:"row",
+        alignItems:"center",
+        justifyContent:"space-between"
+    },
+    cardBtn:{
+        backgroundColor:"#008074",
+        width:30,
+        height:30,
+        justifyContent:"center",
+        alignItems:"center",
+        borderRadius:15,
+        
     }
 })
