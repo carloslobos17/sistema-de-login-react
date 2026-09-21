@@ -1,14 +1,57 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Drawer from "expo-router/drawer";
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, TextInput, Alert, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useAuth } from "../src/context/AuthContext";
+import { AuthService } from "../src/auth/services/auth.service";
 
 export default function ProfileScreen() {
     const router = useRouter();
-    const { user } = useAuth()
+    const { user, token, updateUserSession } = useAuth()
+    const [name, setName] = useState("")
+    const [lastName, setLastName] = useState("")
+    const [phone, setPhone] = useState("")
+    const [isUpdating, setIsUpdating] = useState(false)
+
+
+    useEffect(() => {
+        if (user) {
+            setName(user.name || "")
+            setName(user.lastName || "")
+            setName(user.phone || "")
+        }
+    }, [user])
+
+    const handleUpdateUser = async () => {
+        if (!name.trim() || !lastName.trim() || !phone.trim()) {
+            Alert.alert("Campos incompletos", "Por favor llenar los campos")
+            return
+        } if (!user?.id || !token) {
+            Alert.alert("Error de sesion", "No se encontro el usuario")
+            return
+        }
+        setIsUpdating(true)
+        try {
+            const updateUser = await AuthService.updateUser(
+                user.id,
+                name,
+                lastName,
+                phone,
+                token
+            )
+            await updateUserSession(updateUser)
+            Alert.alert(
+                "Excelente",
+                "Tu informacion ha sido actuaizada con exito en el servidor"
+            )
+        } catch (error: any) {
+            Alert.alert("Error de registro", error.message || "No se pudo actualizar")
+        } finally {
+            setIsUpdating(false)
+        }
+    }
     return (
 
         <SafeAreaView style={styles.container}>
@@ -53,24 +96,26 @@ export default function ProfileScreen() {
                 <View style={styles.sectionCard}>
                     <Text style={styles.personalHeader}>Personal information</Text>
                     <View style={styles.inpuGroup}>
-                        <Text style={styles.inputLabel}>FULL NAME</Text>
+                        <Text style={styles.inputLabel}>NAME</Text>
                         <View style={styles.inputWrapper}>
                             <Ionicons style={styles.inputIcon} name="person-outline" size={20} />
                             <TextInput
                                 placeholder="Full name"
                                 style={styles.input}
-                                value={user?.name || "Usuario no identificado"}
+                                value={name}
+                                onChangeText={setName}
                             />
                         </View>
                     </View>
                     <View style={styles.inpuGroup}>
-                        <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
+                        <Text style={styles.inputLabel}>LAST NAME</Text>
                         <View style={styles.inputWrapper}>
-                            <Ionicons style={styles.inputIcon} name="mail-outline" size={20} />
+                            <Ionicons style={styles.inputIcon} name="person-outline" size={20} />
                             <TextInput
-                                placeholder="Email Address"
+                                placeholder="Last Name"
                                 style={styles.input}
-                                value={user?.email || "Sin correo electronico"}
+                                value={lastName}
+                                onChangeText={setLastName}
                             />
                         </View>
                     </View>
@@ -81,10 +126,27 @@ export default function ProfileScreen() {
                             <TextInput
                                 placeholder="Phone number"
                                 style={styles.input}
-                                value={user?.phone || "Sin numero de telefono"}
+                                value={phone}
+                                onChangeText={setPhone}
                             />
                         </View>
                     </View>
+                    <TouchableOpacity
+                        style={styles.updateButton}
+                        onPress={handleUpdateUser}
+                        disabled={isUpdating}
+                    >
+                        {isUpdating ? (
+                            <ActivityIndicator color={"#fff"} size="small" />
+                        ) : (
+                            <>
+                                <Ionicons name="checkmark-circle-outline" size={20} color={"#fff"} style={{ marginRight: 8 }} />
+                                <Text style={styles.updateButtonText}>Save changes</Text>
+                            </>
+                        )
+                        }
+
+                    </TouchableOpacity>
                 </View>
 
             </ScrollView>
@@ -239,6 +301,19 @@ const styles = StyleSheet.create({
     },
     inputIcon: {
         marginRight: 10
+    },
+    updateButton: {
+        flexDirection: "row",
+        backgroundColor: "#005C3A",
+        borderRadius: 12,
+        height: 48,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    updateButtonText: {
+        color: "#fff",
+        fontSize: 16,
+        fontWeight: "bold"
     }
 
 })

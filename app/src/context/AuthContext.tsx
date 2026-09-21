@@ -8,6 +8,7 @@ interface AuthContextType {
     isLoadingSession: boolean;
     saveSession: (token: string, user: UserResponse) => Promise<void>;
     clearSession: () => void;
+    updateUserSession: (updateSession: UserResponse) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -51,19 +52,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const updateUserSession = async(updateUser:UserResponse)=>{
+        try {
+            await AsyncStorage.setItem("@auth_user", JSON.stringify(updateUser))
+            setUser (updateUser)
+        } catch(error){
+            console.log("Error al actualizar la data en AsyncStorage", error);
+
+        }
+    }
+
     //LIMPIAR SESION
     const clearSession = async () => {
         try {
             await AsyncStorage.removeItem("@auth_token");
             await AsyncStorage.removeItem("@auth_user");
             setToken(null);
-          setUser(null);
+            setUser(null);
         } catch (error) {
             console.log("Error al limpiar data", error);
         }
     };
 
-    return <AuthContext.Provider value={{ token, user, isLoadingSession, saveSession, clearSession }}>
+    return <AuthContext.Provider value={{ token, user, isLoadingSession, saveSession,updateUserSession, clearSession  }}>
         {children}
     </AuthContext.Provider>
 };
