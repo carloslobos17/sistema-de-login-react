@@ -8,15 +8,36 @@ export function useDrawer() {
         name: "Admin User",
         role: "System managment",
         avatarUrl: "https://www.clinicas-veterpet.com/wp-content/uploads/2024/02/blog-veterpet-edad-gatitos.jpg",
-        version:"v4.4.4"
+        version: "v4.4.4"
     })
 
-    const navigationOptions:DrawerItemOption[]=[
-        {name:"dashboard", label:"Dashboard",icon:"grid"},
-        {name:"orders", label:"Orders",icon:"package"},
-        {name:"inventory", label:"Inventory",icon:"archive"}
+    const navigationOptions: DrawerItemOption[] = [
+        { name: "dashboard", label: "Dashboard", icon: "grid" },
+        { name: "orders", label: "Orders", icon: "package" },
+        {
+            name: "inventory",
+            label: "Inventory",
+            icon: "archive",
+            subitems: [
+                {
+                    name: "inventory",
+                    label: "Categories",
+                    icon: "folder"
+                },
+                {
+                    name:"create-product",
+                    label:"Products",
+                    icon:"file-text"
+                },
+                                {
+                    name:"create-service",
+                    label:"Servicios",
+                    icon:"services"
+                }
+            ]
+        }
     ]
-    return{
+    return {
         profile,
         navigationOptions
     }

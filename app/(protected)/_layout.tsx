@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { Drawer } from "expo-router/drawer"
 import { Image, StyleSheet, View, Text, TouchableOpacity } from "react-native";
@@ -11,6 +11,7 @@ export default function ProtectedLayout() {
     const { profile, navigationOptions } = useDrawer()
     const { clearSession } = useAuth()
     const router = useRouter()
+    const [isInventoryExpanded, setIsInventoryExpanded] = useState(false)
     return (
         <GestureHandlerRootView>
             <Drawer
@@ -41,32 +42,73 @@ export default function ProtectedLayout() {
                             <View style={styles.menuList}>
                                 {navigationOptions.map((option) => {
                                     const isSelected = activeRouteName === option.name
+                                    const hasSubItems = !!option.subitems
                                     return (
-                                        <TouchableOpacity
-                                            style={[styles.menuItemList, isSelected && styles.menuItemSelected]}
+                                        <View
                                             key={option.name}
-                                            onPress={()=>{
-                                                router.push(`/(protected)/${option.name}` as any)
-                                            }}
                                         >
-                                            <Feather
-                                                style={styles.menuIcon}
-                                                name={option.icon as any}
-                                                size={20}
-                                                color={isSelected ? "#fff" : "#374151"}
-                                            />
-                                            <Text style={[styles.menuText, isSelected && styles.menuTextSelected]}>{option.label}</Text>
-                                        </TouchableOpacity>
+
+                                            <TouchableOpacity
+                                                style={[styles.menuItemList, isSelected && styles.menuItemSelected]}
+                                                onPress={() => {
+                                                    if (hasSubItems) {
+                                                        setIsInventoryExpanded(!isInventoryExpanded)
+                                                    } else {
+                                                        router.push(`/(protected)/${option.name}` as any)
+                                                    }
+                                                }}
+                                            >
+                                                <Feather
+                                                    style={styles.menuIcon}
+                                                    name={option.icon as any}
+                                                    size={20}
+                                                    color={isSelected ? "#fff" : "#374151"}
+                                                />
+                                                <Text style={[styles.menuText, isSelected && styles.menuTextSelected]}>{option.label}</Text>
+                                                {hasSubItems && (
+                                                    <Feather
+                                                        name={isInventoryExpanded
+                                                            ? "chevron-up"
+                                                            : "chevron-down"}
+                                                        size={16}
+                                                        style={{ marginLeft: "auto" }}
+                                                    />
+                                                )}
+                                            </TouchableOpacity>
+                                            {hasSubItems && isInventoryExpanded && option.subitems?.map((sub) => {
+                                                const isSubSelected = activeRouteName === sub.name
+                                                return (
+                                                    <TouchableOpacity
+                                                    key={sub.name}
+                                                    style={[
+                                                        styles.menuItemList,
+                                                        {paddingLeft:40},
+                                                        isSubSelected && styles.menuItemSelected
+                                                    ]}
+                                                    onPress={()=>router.push(`/(protected)/${sub.name}` as any)}
+                                                    >
+                                                        <Feather
+                                                        name={sub.icon as any}
+                                                        size={16}
+                                                        color={isSubSelected ? "#fff" : "#4B5563"}
+                                                        style={styles.menuIcon}
+                                                        />
+                                                        <Text style={[styles.menuText, {fontSize:14}, isSubSelected && styles.menuTextSelected]}>{sub.label}</Text>
+                                                    </TouchableOpacity>
+
+                                                )
+                                            })}
+                                        </View>
                                     )
                                 })}
                             </View>
-                            <TouchableOpacity 
-                            style={styles.logoutButton}
-                            onPress={async()=>{
-                                await clearSession()
-                            }}
+                            <TouchableOpacity
+                                style={styles.logoutButton}
+                                onPress={async () => {
+                                    await clearSession()
+                                }}
                             >
-                                
+
                                 <Feather name="log-out" size={20} color="#EF4444" style={styles.menuIcon} />
                                 <Text style={styles.logoutText}>Log out</Text>
                             </TouchableOpacity>
