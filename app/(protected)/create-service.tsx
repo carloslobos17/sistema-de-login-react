@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native/Libraries/Components/View/View";
+import { View } from "react-native";
 
 export default function CreateServiceScreen(){
     return(
