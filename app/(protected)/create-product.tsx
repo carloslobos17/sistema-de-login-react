@@ -79,9 +79,73 @@ export default function CreateProductScreen() {
                             />
                         </View>
                         <View style={styles.chartCounterDescription}>
-
                             <Text>{description.length} / 2000</Text>
                         </View>
+                    </View>
+                    {/* precios e inventario */}
+                    <View style={styles.card}>
+                        <View style={styles.cardHeader}>
+                            <Feather
+                                name="dollar-sign"
+                                size={20}
+                                color={"#005C47"}
+                            />
+                            <Text style={styles.cardTitle}>Precios e inventario</Text>
+                        </View>
+                        <View style={styles.rowCols}>
+                            <View style={styles.col}>
+                                <Text style={styles.inputLabel}>Precio regular</Text>
+                                <View style={styles.inputPriceWrapper}>
+                                    <Text style={{ marginRight: 6 }}>$</Text>
+                                    <TextInput
+                                        placeholder="0.0"
+                                        keyboardType="numeric"
+                                        style={styles.priceInput}
+                                    />
+                                </View>
+                            </View>
+                            <View style={styles.col}>
+                                <Text style={styles.inputLabel}>Precio de oferta</Text>
+                                <View style={styles.inputPriceWrapper}>
+                                    <Text style={{ marginRight: 6 }}>$</Text>
+                                    <TextInput
+                                        placeholder="0.0"
+                                        keyboardType="numeric"
+                                        style={styles.priceInput}
+                                    />
+                                </View>
+                            </View>
+                        </View>
+                        <View style={styles.rowCols}>
+                            <View style={styles.col}>
+                                <Text style={styles.inputLabel}>Stock inicial</Text>
+                                <View style={styles.inputPriceWrapper}>
+                                    <Text style={{ marginRight: 6 }}>$</Text>
+                                    <TextInput
+                                        placeholder="50"
+                                        keyboardType="numeric"
+                                        style={styles.priceInput}
+                                    />
+                                </View>
+                            </View>
+                            <View style={styles.col}>
+                                <Text style={styles.inputLabel}>Stock minimo</Text>
+                                <View style={styles.inputPriceWrapper}>
+                                    <Text style={{ marginRight: 6 }}>$</Text>
+                                    <TextInput
+                                        placeholder="5"
+                                        keyboardType="numeric"
+                                        style={styles.priceInput}
+                                    />
+                                </View>
+                            </View>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.btnSave}
+                        >
+                            <Ionicons style={styles.checkIcon} name="checkmark-outline" size={22} color="#fff" />
+                            <Text style={styles.btnSaveText}>Guardar Producto</Text>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
@@ -194,6 +258,45 @@ const styles = StyleSheet.create({
     },
     chartCounterDescription: {
         flexDirection: "row",
-        justifyContent:"flex-end"
-    }
+        justifyContent: "flex-end"
+    },
+    rowCols: {
+        flexDirection: "row",
+        gap: 8
+    },
+    col: {
+        flex: 1,
+        marginBottom: 5
+    },
+    inputPriceWrapper: {
+        height: 48,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        borderRadius: 10,
+        paddingHorizontal: 14,
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff"
+    },
+    priceInput: {
+        flex: 1,
+        padding: 0
+    },
+    btnSave: {
+        backgroundColor: "#006C47",
+        height: 48,
+        borderRadius: 10,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 16,
+        marginTop: 15
+    },
+    checkIcon: {
+        marginRight: 8
+    },
+    btnSaveText: {
+        color: "#fff",
+        fontSize: 15
+    },
 })
