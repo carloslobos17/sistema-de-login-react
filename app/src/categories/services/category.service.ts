@@ -10,6 +10,27 @@ export interface CategoryResponse {
 }
 
 export const CategoryService = {
+
+    getCategories: async (token: string): Promise<CategoryResponse[]> => {
+        try {
+            const authTokenHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`
+            const response = await axios.get<CategoryResponse[]>(
+                `${API_URL}/categories`,
+                {
+                    headers:{
+                        Authorization:authTokenHeader
+                    }
+                }
+            )
+            return response.data
+        } catch (error: any) {
+            if (axios.isAxiosError(error) && error.response) {
+                throw new Error(error.response.data?.message || "Error to get categories")
+            }
+            throw new Error("Server error")
+        }
+    },
+
     createCategory: async (
         name: string,
         description: string,

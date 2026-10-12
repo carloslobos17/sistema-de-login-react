@@ -1,11 +1,13 @@
-import React, { useMemo, useState } from "react";
-import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity, Image, Dimensions } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity, Image, Dimensions, ActivityIndicator } from "react-native";
 import Drawer from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
 import { DrawerActions } from "@react-navigation/native";
 import { useDrawer } from "../src/admin/viewmodels/use-drawer";
 import { FlatList, TextInput } from "react-native-gesture-handler";
+import { useAuth } from "../src/context/AuthContext";
+import { CategoryService } from "../src/categories/services/category.service";
 
 const { width } = Dimensions.get('window')
 const CARD_WIDTH = (width - 44) / 2 //ancho total menos margenes laterales
@@ -20,52 +22,7 @@ interface Product {
     category: string
 }
 
-const CATEGORIES = ["All categories", "Electronics", "Fashions", "Videogames"]
 
-const MOCK_PRODUCTS: Product[] = [
-    {
-        id: "1",
-        title: "Premium Audio",
-        description: "Wireless Noise Cancelling",
-        price: 299.00,
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop",
-        isNew: true,
-        category: "Electronics",
-    },
-    {
-        id: "2",
-        title: "Eon Classic Wrist",
-        description: "Genuine Leather Strap",
-        price: 145.00,
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop",
-        category: "Fashions",
-    },
-    {
-        id: "3",
-        title: "Velocity Running",
-        description: "Peak Performance Gear",
-        price: 89.99,
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop",
-        category: "Fashions",
-    },
-    {
-        id: "4",
-        title: "Insta-Capture",
-        description: "Vintage Aesthetics",
-        price: 120.00,
-        image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=600&auto=format&fit=crop",
-        category: "Electronics",
-    },
-    {
-        id: "5",
-        title: "Console Controller",
-        description: "Built for Next-Gen Gaming",
-        price: 69.99,
-        image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop",
-        isNew: true,
-        category: "VideoGames",
-    }
-];
 
 export default function DashboardScreen() {
 
@@ -73,8 +30,29 @@ export default function DashboardScreen() {
     const navigation = useNavigation()
     const router = useRouter()
     const { profile } = useDrawer()
+    const { token } = useAuth()
     const [selectedCategory, setSelectedCategory] = useState("All products")
     const [searchQuery, setsearchQuery] = useState("")
+    const [categories, setCategories] = useState<string[]>(["All categories"])
+    const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+    useEffect(() => {
+        const fetchCategories = async () => {
+            if (!token) return
+            setIsLoadingCategories(true)
+            try {
+                const data = await CategoryService.getCategories(token)
+                const categoryNames = Array.from(new Set(data.map((c) => c.name)))
+                setCategories(["All categories", ...categoryNames])
+            } catch (error) {
+                console.log("Error to get categories from screen", error)
+            } finally {
+                setIsLoadingCategories(false)
+            }
+
+        }
+        fetchCategories()
+    }, [token])
+
     const openMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer())
     }
@@ -97,9 +75,9 @@ export default function DashboardScreen() {
                     <Ionicons name="menu-outline" size={30} color="#005C3A" />
                 </TouchableOpacity>
                 <Text style={styles.logoText}>ShopEase</Text>
-                <TouchableOpacity 
-                style={styles.profileContainer}
-                onPress={()=>router.push("/(protected)/profile")}
+                <TouchableOpacity
+                    style={styles.profileContainer}
+                    onPress={() => router.push("/(protected)/profile")}
                 >
                     <Image
                         source={{ uri: profile.avatarUrl }}
@@ -121,32 +99,37 @@ export default function DashboardScreen() {
                 />
             </View>
             <View style={styles.categorieWrapper}>
-                <FlatList
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    data={CATEGORIES}
-                    keyExtractor={(item) => item}
-                    contentContainerStyle={styles.categoriesList}
-                    renderItem={({ item }) => {
-                        const isSelected = item === selectedCategory
-                        return (
-                            <TouchableOpacity
-                                onPress={() => setSelectedCategory(item)}
-                                style={[
-                                    styles.categoryItem,
-                                    isSelected && styles.categoryItemSelected
-                                ]}
-                            >
-                                <Text style={[
-                                    styles.categoryText,
-                                    isSelected && styles.categoryTextSelected
-                                ]}>
-                                    {item}
-                                </Text>
-                            </TouchableOpacity>
-                        )
-                    }}
-                />
+                {isLoadingCategories ? (
+                    <ActivityIndicator color="#005C3A" size="small" />
+                ) : (
+                    <FlatList
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        data={categories}
+                        keyExtractor={(item) => item}
+                        contentContainerStyle={styles.categoriesList}
+                        renderItem={({ item }) => {
+                            const isSelected = item === selectedCategory
+                            return (
+                                <TouchableOpacity
+                                    onPress={() => setSelectedCategory(item)}
+                                    style={[
+                                        styles.categoryItem,
+                                        isSelected && styles.categoryItemSelected
+                                    ]}
+                                >
+                                    <Text style={[
+                                        styles.categoryText,
+                                        isSelected && styles.categoryTextSelected
+                                    ]}>
+                                        {item}
+                                    </Text>
+                                </TouchableOpacity>
+                            )
+                        }}
+                    />
+                )}
+
             </View>
             <FlatList
                 data={filteredProductByCategory}
@@ -175,8 +158,8 @@ export default function DashboardScreen() {
                                 <Text>${item.price.toFixed(2)}</Text>
                                 <TouchableOpacity style={styles.cardBtn}>
                                     <Ionicons name="cart-outline"
-                                    size={16}
-                                    color={"#fff"}
+                                        size={16}
+                                        color={"#fff"}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -323,18 +306,18 @@ const styles = StyleSheet.create({
         color: "#6B7280",
         marginBottom: 8
     },
-    priceRow:{
-        flexDirection:"row",
-        alignItems:"center",
-        justifyContent:"space-between"
+    priceRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between"
     },
-    cardBtn:{
-        backgroundColor:"#008074",
-        width:30,
-        height:30,
-        justifyContent:"center",
-        alignItems:"center",
-        borderRadius:15,
-        
+    cardBtn: {
+        backgroundColor: "#008074",
+        width: 30,
+        height: 30,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 15,
+
     }
 })
