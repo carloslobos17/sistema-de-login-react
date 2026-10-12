@@ -1,12 +1,56 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { KeyboardAvoidingView, Platform, Text, StyleSheet, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Text, StyleSheet, TouchableOpacity, View, Alert, ActivityIndicator } from "react-native";
 import Drawer from "expo-router/drawer";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { ScrollView, TextInput } from "react-native-gesture-handler";
+import { useAuth } from "../src/context/AuthContext";
+import { useState } from "react";
+import { CategoryService } from "../src/categories/services/category.service";
 
 export default function InventoryScreen() {
     const router = useRouter()
+    const { token } = useAuth()
+    const [name, setName] = useState("")
+    const [description, setDescription] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const handleSaveCategory = async () => {
+        if (!name.trim()) {
+            Alert.alert("Campo requerido", "Por favor ingrese el nombre de categoria")
+            return
+        }
+        if (!description.trim()) {
+            Alert.alert("Campo requerido", "Por favor inserte la descripcion")
+            return
+        }
+        if (!token) {
+            Alert.alert("Error de sesion", "No se encontro el token")
+            return
+        }
+        setIsLoading(true)
+        try {
+            const newCategory = await CategoryService.createCategory(name, description, token)
+            Alert.alert(
+                "!Categoria creada!",
+
+                `La categoria "${newCategory.name}" se guardo exitosamnete`,
+                [
+
+                    {
+                        text: "Aceptar",
+                        onPress: () => {
+                            setName("")
+                            setDescription("")
+                            router.replace("/(protected)/dashboard")
+                        }
+                    }
+                ]
+            );
+        } catch (error: any) {
+            Alert.alert("Error", error.message || "No se pudo guardar la  categoria")
+        }
+
+    }
     return (
         <SafeAreaView style={styles.container}>
             <Drawer.Screen options={{ headerShown: false }} />
@@ -32,7 +76,7 @@ export default function InventoryScreen() {
                     contentContainerStyle={styles.scrollContent}
                 >
                     <Text style={styles.logoText}>
-                        INgresa los datos esenciales para catalogar los productos en el inventario
+                        Ingresa los datos esenciales para catalogar los productos en el inventario
                     </Text>
                     <View style={styles.formCard}>
                         <View style={styles.inputGroup}>
@@ -40,6 +84,9 @@ export default function InventoryScreen() {
                             <TextInput
                                 placeholder="Ej. Dulceria"
                                 style={styles.textInput}
+                                value={name}
+                                onChangeText={setName}
+                                editable={!isLoading}
                             />
                         </View>
                         <View style={styles.inputGroup}>
@@ -48,14 +95,26 @@ export default function InventoryScreen() {
                                 placeholder="Describe los productos que engloban esta categoria"
                                 multiline
                                 numberOfLines={5}
+                                value={description}
+                                onChangeText={setDescription}
                                 textAlignVertical="top"
                                 style={styles.textAreaInput}
+                                editable={!isLoading}
                             />
                         </View>
                         <TouchableOpacity
+                            onPress={handleSaveCategory}
+                            disabled={isLoading}
                             style={styles.btnSave}
                         >
-                            <Ionicons style={styles.checkIcon} name="checkmark-outline" size={22} color="#fff" />
+                            {isLoading ? (
+                                <ActivityIndicator color="fff" size="small" />
+                            ) : (
+                                <>
+                                    <Ionicons style={styles.checkIcon} name="checkmark-outline" size={22} color="#fff" />
+                                </>
+                            )}
+
                             <Text style={styles.btnSaveText}>Guardar Categoria</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -81,7 +140,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 14,
-        paddingVertical:14,
+        paddingVertical: 14,
         backgroundColor: "#F9FAFB"
     },
     titleWrapper: {
@@ -175,7 +234,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     btnCancelText: {
-        fontSize:14,
+        fontSize: 14,
         color: "#6B7280",
         fontWeight: "500"
     }

@@ -1,0 +1,43 @@
+import { API_URL } from "@/api/ApiClient"
+import axios from "axios"
+
+export interface CategoryResponse {
+    id: number
+    name: string
+    description?: string
+    createdAt: string
+    updateAt: string
+}
+
+export const CategoryService = {
+    createCategory: async (
+        name: string,
+        description: string,
+        token: string
+    ): Promise<CategoryResponse> => {
+        try {
+            const authTokenHeader = token.startsWith("Bearer ") ? token : `Bearer ${token}`
+
+            const response = await axios.post(
+                `${API_URL}/categories/create`,
+                {
+                    name,
+                    description
+                },
+                {
+                    headers: {
+                        "Authorization": authTokenHeader,
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+            console.log("RESPUESTA", response.data)
+            return response.data
+        } catch (error: any) {
+            if (axios.isAxiosError(error) && error.response) {
+                throw new Error(error.response.data?.message || "Error to save category")
+            }
+            throw new Error("Server error")
+        }
+    }
+}
