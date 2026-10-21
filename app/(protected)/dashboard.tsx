@@ -22,6 +22,83 @@ interface Product {
     category: string
 }
 
+const DEFAULT_CATEGORIES = [
+    "All categories",
+    "Calzado Urbano",
+    "Ropa urbana",
+    "Comida",
+    "Electronics",
+    "VideoGames"
+];
+const MOCK_PRODUCTS: Product[] = [
+    {
+        id: "1",
+        title: "Premium Audio",
+        description: "Wireless Noise Cancelling",
+        price: 299.00,
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop",
+        isNew: true,
+        category: "Electronics",
+    },
+    {
+        id: "2",
+        title: "Eon Classic Wrist",
+        description: "Genuine Leather Strap",
+        price: 145.00,
+        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop",
+        category: "Ropa urbana",
+    },
+    {
+        id: "3",
+        title: "Velocity Running",
+        description: "Peak Performance Gear",
+        price: 89.99,
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop",
+        category: "Calzado Urbano",
+    },
+    {
+        id: "4",
+        title: "Insta-Capture",
+        description: "Vintage Aesthetics",
+        price: 120.00,
+        image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=600&auto=format&fit=crop",
+        category: "Electronics",
+    },
+    {
+        id: "5",
+        title: "Console Controller",
+        description: "Built for Next-Gen Gaming",
+        price: 69.99,
+        image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop",
+        isNew: true,
+        category: "VideoGames",
+    },
+    {
+        id: "6",
+        title: "Sneaker Urbano Casual",
+        description: "Zapatos urbanos para uso diario",
+        price: 74.99,
+        image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=600&auto=format&fit=crop",
+        isNew: true,
+        category: "Calzado Urbano",
+    },
+    {
+        id: "7",
+        title: "Camisa Oversize Street",
+        description: "Estilo urbano 100% algodón",
+        price: 35.00,
+        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop",
+        category: "Ropa urbana",
+    },
+    {
+        id: "8",
+        title: "Combo Snack & Burger",
+        description: "Comida rápida y aperitivos",
+        price: 14.50,
+        image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=600&auto=format&fit=crop",
+        category: "Comida",
+    }
+];
 
 
 export default function DashboardScreen() {
