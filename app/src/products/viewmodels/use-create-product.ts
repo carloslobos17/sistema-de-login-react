@@ -1,8 +1,9 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { ProductService } from "../services/product.service";
 import { Alert } from "react-native";
+import { CategoryResponse, CategoryService } from "../../categories/services/category.service";
 
 export function useCreateProduct(){
     const router = useRouter()
@@ -10,6 +11,9 @@ export function useCreateProduct(){
 
     const [name, setName] = useState("")
     const [categoryId, setCategoryId] = useState<null | number>(null)  
+    const [categories, setCategories] = useState<CategoryResponse[]>([])
+    const [isLoadingCategories, setIsLoadingCategories] = useState(false)
+    const [isCategoriesShowModal, setIsCategoriesShowModal] = useState(false)
     const [sku, setSku] = useState("")
     const [description, setDescription] = useState("")
     const [regularPrice, setRegularPrice] = useState("")
@@ -18,7 +22,26 @@ export function useCreateProduct(){
     const [minStockAlert, setMinStockAlert] = useState("")
     const [isLoadingProduct, setIsLoadingProduct] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [selectedCategoryName, setSelectedCategoryName] = useState("")
     
+useEffect(()=>{
+    if(token){
+        fetchCategories()
+    }
+}, [token])
+
+    const fetchCategories = async()=>{
+        if(!token)return
+        setIsLoadingCategories(true)
+        try {
+            const data = await CategoryService.getCategories(token)
+            setCategories(data)
+        } catch (error:any) {
+            console.log("Error al cargar las categorias",error.message)
+        }finally{
+            setIsLoadingCategories(false)
+        }
+    }
     const submitProduct = async()=> {
         if(!name.trim() || !sku.trim() || !regularPrice.trim() || !initialStock.trim()){
             setErrorMessage("Por favor completa los campos obligatorios")
@@ -30,11 +53,12 @@ export function useCreateProduct(){
         }
         setErrorMessage(null)
         setIsLoadingProduct(true)
+        console.log("PRODUCT ID:",categoryId)
         try {
             await ProductService.createProduct(
                 {
                     name:name.trim(),
-                    categoryId:1,
+                    categoryId:Number(categoryId),
                     sku:sku.trim(),
                     description:description.trim(),
                     regularPrice:parseFloat(regularPrice),
@@ -44,7 +68,6 @@ export function useCreateProduct(){
                 },
                 token
             )
-            // el alert no funciona
             Alert.alert("Exito", "Producto creado correctamente", [
                 {
                     text: "OK",
@@ -60,6 +83,10 @@ export function useCreateProduct(){
     return{
         name,
         setName,
+        categories,
+        isLoadingCategories,
+        isCategoriesShowModal,
+        setIsCategoriesShowModal,
         categoryId,
         setCategoryId,
         sku,
@@ -76,6 +103,8 @@ export function useCreateProduct(){
         setMinStockAlert,
         isLoadingProduct,
         errorMessage,
-        submitProduct
+        submitProduct,
+        selectedCategoryName,
+        setSelectedCategoryName
     }
 }
