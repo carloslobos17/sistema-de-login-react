@@ -8,97 +8,11 @@ import { useDrawer } from "../src/admin/viewmodels/use-drawer";
 import { FlatList, TextInput } from "react-native-gesture-handler";
 import { useAuth } from "../src/context/AuthContext";
 import { CategoryService } from "../src/categories/services/category.service";
+import { useCreateProduct } from "../src/products/viewmodels/use-create-product";
 
 const { width } = Dimensions.get('window')
 const CARD_WIDTH = (width - 44) / 2 //ancho total menos margenes laterales
 
-interface Product {
-    id: string
-    title: string
-    description: string
-    price: number
-    image: string
-    isNew?: boolean
-    category: string
-}
-
-const DEFAULT_CATEGORIES = [
-    "All categories",
-    "Calzado Urbano",
-    "Ropa urbana",
-    "Comida",
-    "Electronics",
-    "VideoGames"
-];
-const MOCK_PRODUCTS: Product[] = [
-    {
-        id: "1",
-        title: "Premium Audio",
-        description: "Wireless Noise Cancelling",
-        price: 299.00,
-        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop",
-        isNew: true,
-        category: "Electronics",
-    },
-    {
-        id: "2",
-        title: "Eon Classic Wrist",
-        description: "Genuine Leather Strap",
-        price: 145.00,
-        image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=600&auto=format&fit=crop",
-        category: "Ropa urbana",
-    },
-    {
-        id: "3",
-        title: "Velocity Running",
-        description: "Peak Performance Gear",
-        price: 89.99,
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop",
-        category: "Calzado Urbano",
-    },
-    {
-        id: "4",
-        title: "Insta-Capture",
-        description: "Vintage Aesthetics",
-        price: 120.00,
-        image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=600&auto=format&fit=crop",
-        category: "Electronics",
-    },
-    {
-        id: "5",
-        title: "Console Controller",
-        description: "Built for Next-Gen Gaming",
-        price: 69.99,
-        image: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop",
-        isNew: true,
-        category: "VideoGames",
-    },
-    {
-        id: "6",
-        title: "Sneaker Urbano Casual",
-        description: "Zapatos urbanos para uso diario",
-        price: 74.99,
-        image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=600&auto=format&fit=crop",
-        isNew: true,
-        category: "Calzado Urbano",
-    },
-    {
-        id: "7",
-        title: "Camisa Oversize Street",
-        description: "Estilo urbano 100% algodón",
-        price: 35.00,
-        image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?q=80&w=600&auto=format&fit=crop",
-        category: "Ropa urbana",
-    },
-    {
-        id: "8",
-        title: "Combo Snack & Burger",
-        description: "Comida rápida y aperitivos",
-        price: 14.50,
-        image: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=600&auto=format&fit=crop",
-        category: "Comida",
-    }
-];
 
 
 export default function DashboardScreen() {
@@ -107,43 +21,21 @@ export default function DashboardScreen() {
     const navigation = useNavigation()
     const router = useRouter()
     const { profile } = useDrawer()
-    const { token } = useAuth()
-    const [selectedCategory, setSelectedCategory] = useState("All products")
-    const [searchQuery, setsearchQuery] = useState("")
-    const [categories, setCategories] = useState<string[]>(["All categories"])
-    const [isLoadingCategories, setIsLoadingCategories] = useState(false)
-    useEffect(() => {
-        const fetchCategories = async () => {
-            if (!token) return
-            setIsLoadingCategories(true)
-            try {
-                const data = await CategoryService.getCategories(token)
-                const categoryNames = Array.from(new Set(data.map((c) => c.name)))
-                setCategories(["All categories", ...categoryNames])
-            } catch (error) {
-                console.log("Error to get categories from screen", error)
-            } finally {
-                setIsLoadingCategories(false)
-            }
-
-        }
-        fetchCategories()
-    }, [token])
 
     const openMenu = () => {
         navigation.dispatch(DrawerActions.openDrawer())
     }
+const {
+    categories,
+    selectedCategoryId,
+    setSelectedCategoryId,
+    products,
+    searchQuery,
+    setSearchQuery,
+    isLoadingCategories,
+    isLoadingProduct
+}= useCreateProduct()
 
-    const filteredProductByCategory = useMemo(() => {
-        return MOCK_PRODUCTS.filter((product) => {
-            const matchCategory = selectedCategory === "All products" || product.category === selectedCategory
-            const matchSearch =
-                product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchQuery.toLowerCase())
-            return matchCategory && matchSearch
-        })
-
-    }, [selectedCategory, searchQuery])
     return (
         <SafeAreaView style={styles.container}>
             <Drawer.Screen options={{ headerShown: false }} />
@@ -171,7 +63,7 @@ export default function DashboardScreen() {
                 <TextInput
                     placeholder="Search products"
                     value={searchQuery}
-                    onChangeText={setsearchQuery}
+                    onChangeText={setSearchQuery}
                     style={styles.searchInput}
                 />
             </View>
@@ -183,13 +75,13 @@ export default function DashboardScreen() {
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         data={categories}
-                        keyExtractor={(item) => item}
+                        keyExtractor={ (item) => (item.id === null ? "all":item.id.toString())}
                         contentContainerStyle={styles.categoriesList}
                         renderItem={({ item }) => {
-                            const isSelected = item === selectedCategory
+                            const isSelected = selectedCategoryId === item.id
                             return (
                                 <TouchableOpacity
-                                    onPress={() => setSelectedCategory(item)}
+                                    onPress={() => setSelectedCategoryId(item.id as number | null)}
                                     style={[
                                         styles.categoryItem,
                                         isSelected && styles.categoryItemSelected
@@ -199,7 +91,7 @@ export default function DashboardScreen() {
                                         styles.categoryText,
                                         isSelected && styles.categoryTextSelected
                                     ]}>
-                                        {item}
+                                        {item.name}
                                     </Text>
                                 </TouchableOpacity>
                             )
@@ -209,8 +101,8 @@ export default function DashboardScreen() {
 
             </View>
             <FlatList
-                data={filteredProductByCategory}
-                keyExtractor={(item) => item.id}
+                data={products}
+                keyExtractor={(item) => item.id.toString()}
                 numColumns={2}
                 columnWrapperStyle={styles.gridRowSpace}
                 contentContainerStyle={styles.productList}
@@ -219,20 +111,15 @@ export default function DashboardScreen() {
                     <View style={styles.cardContainer}>
                         <View style={styles.imageWrapper}>
                             <Image
-                                source={{ uri: item.image }}
+                                source={{ uri: item.imageUrl }}
                                 style={styles.productImage}
                             />
-                            {item.isNew && (
-                                <View style={styles.newBadge}>
-                                    <Text style={styles.newBadgeText}>NEW</Text>
-                                </View>
-                            )}
                         </View>
                         <View style={styles.productoInfo}>
-                            <Text style={styles.productTitle}>{item.title}</Text>
+                            <Text style={styles.productTitle}>{item.name}</Text>
                             <Text style={styles.productDescription}>{item.description}</Text>
                             <View style={styles.priceRow}>
-                                <Text>${item.price.toFixed(2)}</Text>
+                                <Text>${item.regularPrice.toFixed(2)}</Text>
                                 <TouchableOpacity style={styles.cardBtn}>
                                     <Ionicons name="cart-outline"
                                         size={16}
