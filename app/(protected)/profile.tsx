@@ -19,8 +19,8 @@ export default function ProfileScreen() {
     useEffect(() => {
         if (user) {
             setName(user.name || "")
-            setName(user.lastName || "")
-            setName(user.phone || "")
+            setLastName(user.lastName || "")
+            setPhone(user.phone || "")
         }
     }, [user])
 
