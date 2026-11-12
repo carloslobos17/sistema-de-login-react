@@ -15,7 +15,7 @@ export default function ProductDetailScreen() {
     discount: '-22% OFF',
     isOfficial: true,
     stockCount: 18,
-    imageUrl: 'https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=800&auto=format&fit=crop', // Imagen de relleno
+    imageUrl: 'https://images.unsplash.com/photo-1765030956556-503a3e881f27?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
   };
 
   return (
