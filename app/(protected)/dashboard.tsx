@@ -108,13 +108,18 @@ const {
                 contentContainerStyle={styles.productList}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
-                    <View style={styles.cardContainer}>
+                    <TouchableOpacity 
+
+                    onPress={() => router.push("/(protected)/ProductDetailScreen")}
+                    style={styles.cardContainer}
+                    >
+                        
                         <View style={styles.imageWrapper}>
                             <Image
                                 source={{ uri: item.imageUrl }}
                                 style={styles.productImage}
                             />
-                        </View>
+                        </View> 
                         <View style={styles.productoInfo}>
                             <Text style={styles.productTitle}>{item.name}</Text>
                             <Text style={styles.productDescription}>{item.description}</Text>
@@ -128,7 +133,7 @@ const {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
         </SafeAreaView>
